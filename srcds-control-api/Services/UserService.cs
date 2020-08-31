@@ -18,10 +18,10 @@ namespace srcds_control_api.Services
     public class UserService : IUserService
     {
         private readonly IMongoCollection<MongoUser> _users;
-        private readonly IPasswordEncryptor _encryptor;
+        private readonly IPasswordHasher _encryptor;
         private readonly IConfiguration _config;
 
-        public UserService(IConfiguration config, IPasswordEncryptor encryptor)
+        public UserService(IConfiguration config, IPasswordHasher encryptor)
         {
             var client = new MongoClient(config.GetConnectionString("SrcdControlDb"));
             var database = client.GetDatabase("SrcdControl");
@@ -42,7 +42,7 @@ namespace srcds_control_api.Services
                     throw new UserNotFoundException(user.UserName);
                 }
 
-                if(!_encryptor.TryMatchPassword(new EncryptedPassword(mongoUser.Salt, mongoUser.HashedPassword), user.Password))
+                if(!_encryptor.TryMatchPassword(new HashedPassword(mongoUser.Salt, mongoUser.HashedPassword), user.Password))
                 {
                     throw new WrongPasswordException(user.UserName);
                 }
@@ -89,14 +89,14 @@ namespace srcds_control_api.Services
                     throw new UserNotFoundException(dto.UserName);
                 }
 
-                if (!_encryptor.TryMatchPassword(new EncryptedPassword(user.Salt, user.HashedPassword), dto.CurrentPassword))
+                if (!_encryptor.TryMatchPassword(new HashedPassword(user.Salt, user.HashedPassword), dto.CurrentPassword))
                 {
                     throw new WrongPasswordException(dto.UserName);
                 }
 
                 var encrypted = _encryptor.CreateUserPassword(dto.NewPassword);
 
-                user.HashedPassword = Convert.ToBase64String(encrypted.HashedPassword);
+                user.HashedPassword = Convert.ToBase64String(encrypted.HashedPasswordString);
                 user.Salt = Convert.ToBase64String(encrypted.Salt);
 
                await _users.ReplaceOneAsync(u => u.Id == user.Id, user);
@@ -123,7 +123,7 @@ namespace srcds_control_api.Services
                 var mongoUser = new MongoUser()
                 {
                     UserName = user.UserName,
-                    HashedPassword = Convert.ToBase64String(encrypted.HashedPassword),
+                    HashedPassword = Convert.ToBase64String(encrypted.HashedPasswordString),
                     Salt = Convert.ToBase64String(encrypted.Salt),
                     Role = user.Role,
                     Enabled = true

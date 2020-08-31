@@ -41,7 +41,7 @@ namespace srcds_control_api
             services.Configure<JwtSettings>(jwtSection);
             services.Configure<CorsSettings>(corsSection);
 
-            services.AddScoped<IPasswordEncryptor, PasswordEncryptor>();
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ISrcdsService, SrcdsService>();
             services.AddScoped<IRankService, RankService>();

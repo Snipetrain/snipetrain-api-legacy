@@ -8,28 +8,28 @@ using System.Threading.Tasks;
 
 namespace srcds_control_api.Utilities
 {
-    public class EncryptedPassword
+    public class HashedPassword
     {
-        public EncryptedPassword()
+        public HashedPassword()
         { }
 
-        public EncryptedPassword(string salt, string hashedPassword)
+        public HashedPassword(string salt, string hashedPassword)
         {
             Salt = salt.ToByteArray();
-            HashedPassword = hashedPassword.ToByteArray();
+            HashedPasswordString = hashedPassword.ToByteArray();
         }
 
         public byte[] Salt { get; set; }
-        public byte[] HashedPassword { get; set; }
+        public byte[] HashedPasswordString { get; set; }
 
     }
 
-    public class PasswordEncryptor : IPasswordEncryptor
+    public class PasswordHasher : IPasswordHasher
     {
-        public PasswordEncryptor()
+        public PasswordHasher()
         { }
 
-        public EncryptedPassword CreateUserPassword(string password)
+        public HashedPassword CreateUserPassword(string password)
         {
             try
             {
@@ -43,9 +43,9 @@ namespace srcds_control_api.Utilities
                 // derive a 256-bit subkey (use HMACSHA512 with 10,000 iterations)
                 var hashed = KeyDerivation.Pbkdf2(password: password, salt: salt, prf: KeyDerivationPrf.HMACSHA512, iterationCount: 10000, numBytesRequested: 256 / 8);
 
-                return new EncryptedPassword()
+                return new HashedPassword()
                 {
-                    HashedPassword = hashed,
+                    HashedPasswordString = hashed,
                     Salt = salt
                 };
             }
@@ -55,13 +55,13 @@ namespace srcds_control_api.Utilities
             }
         }
 
-        public bool TryMatchPassword(EncryptedPassword encrypted, string tryPassword)
+        public bool TryMatchPassword(HashedPassword encrypted, string tryPassword)
         {
             try
             {
                 var hashed = KeyDerivation.Pbkdf2(password: tryPassword, salt: encrypted.Salt, prf: KeyDerivationPrf.HMACSHA512, iterationCount: 10000, numBytesRequested: 256 / 8);
 
-                return encrypted.HashedPassword.SequenceEqual(hashed);
+                return encrypted.HashedPasswordString.SequenceEqual(hashed);
             }
             catch (Exception ex)
             {
