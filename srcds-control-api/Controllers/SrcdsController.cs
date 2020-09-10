@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -13,6 +14,7 @@ namespace srcds_control_api.Controllers
 {
     [Authorize]
     [Route("api/srcds")]
+    [EnableCors("Cors-Policy")]
     [ApiController]
     public class SrcdsController : ControllerBase
     {
@@ -26,7 +28,7 @@ namespace srcds_control_api.Controllers
             _logger = logger;
         }
 
-        [Authorize(Roles = UserRole.All)]
+        [AllowAnonymous]
         [HttpGet]
         [Route("GetServers")]
         public async Task<IActionResult> GetServers()
