@@ -48,7 +48,7 @@ namespace srcds_control_api
             services.AddScoped<ISrcdsService, SrcdsService>();
             services.AddScoped<IRankService, RankService>();
 
-            Console.WriteLine($"Config => {Configuration.ToString()}");
+            Console.WriteLine($"secret => {Configuration.GetSection("JWT").GetValue<string>("secret")}");
 
             // Swagger
 
