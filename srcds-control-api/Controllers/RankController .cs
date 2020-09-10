@@ -31,7 +31,7 @@ namespace srcds_control_api.Controllers
         [AllowAnonymous]
         [HttpGet]
         [Route("players")]
-        public async Task<IActionResult> GetPlayersInfo(int perPage)
+        public async Task<IActionResult> GetPlayersInfo(int perPage, string searchString)
         {
             try
             {
@@ -40,7 +40,8 @@ namespace srcds_control_api.Controllers
                     return BadRequest();
                 }
 
-                var res = await _rankService.GetRanks(perPage);
+                IEnumerable<Player> res;
+                res = (String.IsNullOrEmpty(searchString) ? await _rankService.GetRanks(perPage) : await _rankService.GetRanks(perPage, searchString));
 
                 _logger.LogInformation($"Successfully pulled {res.Count()} players.");
 

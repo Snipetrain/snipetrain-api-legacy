@@ -11,6 +11,7 @@ namespace srcds_control_api.Services
     public interface IRankService
     {
         Task<IEnumerable<Player>> GetRanks(int perPage);
+        Task<IEnumerable<Player>> GetRanks(int perPage, string searchString);
         Task<Player> GetRank(string steamId);
     }
 }
