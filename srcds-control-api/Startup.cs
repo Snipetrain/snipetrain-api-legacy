@@ -34,6 +34,7 @@ namespace srcds_control_api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            Console.WriteLine("Configurating Services...");
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             var corsSection = Configuration.GetSection("Cors");
@@ -46,6 +47,8 @@ namespace srcds_control_api
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ISrcdsService, SrcdsService>();
             services.AddScoped<IRankService, RankService>();
+
+            Console.WriteLine($"Config => {Configuration.ToString()}");
 
             // Swagger
 
